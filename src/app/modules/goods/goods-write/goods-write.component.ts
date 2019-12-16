@@ -28,6 +28,7 @@ export class GoodsWriteComponent implements OnInit {
       condition: GoodsCondition.undefined,
       price: 0,
       delivery: GoodsDelivery.undefined,
+      deliveryEtc: '',
       images: [],
       contact: '',
       favoritesCnt: 0,

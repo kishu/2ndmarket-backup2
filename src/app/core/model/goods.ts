@@ -16,25 +16,26 @@ export enum GoodsCategory {
 
 export enum GoodsPurchaseTime {
   undefined = '',
-  unknown = 'unknown',        // 알수 없음
+  unknown = 'unknown',        // 알 수 없음
   week = 'week',              // 일주일 이내
-  month = 'month',            // 한달 이내
-  quarter = 'quarter',        // 석달 이내
-  year = 'year',              // 일년 이내
+  month = 'month',            // 한 달 이내
+  threeMonth = 'threeMonth',  // 석 달 이내
+  year = 'year',              // 일 년 이내
   longAgo = 'longAgo'         // 오래전
 }
 
 export enum GoodsCondition {
   undefined = '',
   unopend = 'unopend',        // 미개봉
-  almostNew = 'almostNew',    // 거의 새제품
+  almostNew = 'almostNew',    // 거의 새상품
   used = 'used'               // 사용감 있음
 }
 
 export enum GoodsDelivery {
   undefined = '',
   directly = 'directly',      // 직거래
-  courier = 'courier'         // 택배
+  courier = 'courier',        // 택배
+  etc = 'etc'                 // 기타 다른 방법
 }
 
 export interface Goods {
@@ -46,7 +47,8 @@ export interface Goods {
   purchaseTime: GoodsPurchaseTime;
   condition: GoodsCondition;
   price: number;
-  delivery: GoodsDelivery | string;
+  delivery: GoodsDelivery;
+  deliveryEtc: string;
   images: string[]; // url
   contact: string;
   favoritesCnt: number;

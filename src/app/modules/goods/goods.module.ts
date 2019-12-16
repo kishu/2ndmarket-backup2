@@ -4,6 +4,7 @@ import { GoodsFormComponent } from './goods-form/goods-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { GoodsRoutingModule } from '@app/modules/goods/goods-routing.module';
 import { GoodsWriteComponent } from './goods-write/goods-write.component';
+import { SharedModule } from '@app/shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { GoodsWriteComponent } from './goods-write/goods-write.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    GoodsRoutingModule
+    GoodsRoutingModule,
+    SharedModule
   ]
 })
 export class GoodsModule { }
