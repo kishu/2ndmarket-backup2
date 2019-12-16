@@ -1,0 +1,78 @@
+<form [formGroup]="goodsForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="title">제목</label>
+    <input
+      id="title"
+      type="text"
+      required
+      minlength="2"
+      maxlength="100"
+      formControlName="title">
+    <div *ngIf="title.invalid && (title.dirty || title.touched)">
+      제목을 정확히 입력해 주세요.(2~100자)
+    </div>
+  </div>
+  <div>
+    <label for="public">다른 그룹에 공개</label>
+    <input
+      id="public"
+      type="checkbox"
+      formControlName="public">
+  </div>
+  <div>
+    <div>카테고리</div>
+    <label for="appliances">가전제품/디지털</label>
+    <input
+      id="appliances"
+      type="radio"
+      [value]=""
+      formControlName="category">
+    <label for="household">생활용품</label>
+    <input
+      id="household"
+      type="radio"
+      formControlName="category">
+    <label for="beauty">뷰티</label>
+    <input
+      id="beauty"
+      type="radio"
+      formControlName="category">
+    <label for="home">홈데코</label>
+    <input
+      id="home"
+      type="radio"
+      formControlName="category">
+    <label for="women">여성의류</label>
+    <input
+      id="women"
+      type="radio"
+      formControlName="category">
+    <label for="man">남성의류</label>
+    <input
+      id="man"
+      type="radio"
+      formControlName="category">
+    <label for="fashion">패션잡화</label>
+    <input
+      id="fashion"
+      type="radio"
+      formControlName="category">
+    <label for="luxury">명품/주얼리</label>
+    <input
+      id="luxury"
+      type="radio"
+      formControlName="category">
+    <label for="kids">유아/출산</label>
+    <input
+      id="kids"
+      type="radio"
+      formControlName="category">
+  </div>
+  <div>
+    <button
+      type="submit"
+      [disabled]="!goodsForm.valid">
+      등록
+    </button>
+  </div>
+</form>

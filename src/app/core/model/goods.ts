@@ -2,41 +2,46 @@ import { UserRef } from './user';
 import { firestore } from 'firebase/app';
 
 export enum GoodsCategory {
-  appliances, // 가전제품, 디지털
-  Household,  // 생활용품
-  beauty,     // 뷰티
-  home,       // 홈데코
-  women,      // 여성의류
-  man,        // 남성의류
-  fashion,    // 패션잡화
-  luxury,     // 명품, 주얼리
-  kids        // 유아, 출산
+  undefined = '',
+  appliances = 'appliances',  // 가전제품, 디지털
+  household = 'household',    // 생활용품
+  beauty = 'beauty',          // 뷰티
+  home = 'home',              // 홈데코
+  women = 'women',            // 여성의류
+  man = 'man',                // 남성의류
+  fashion = 'fashion',        // 패션잡화
+  luxury = 'luxury',          // 명품, 주얼리
+  kids = 'kids'               // 유아, 출산
 }
 
 export enum GoodsPurchaseTime {
-  unknown,    // 알 수 없음
-  week,       // 일주일 이내
-  month,      // 한달 이내
-  quarter,    // 석달 이내
-  year,       // 일년 이내
-  longAgo     // 오래전
+  undefined = '',
+  unknown = 'unknown',        // 알수 없음
+  week = 'week',              // 일주일 이내
+  month = 'month',            // 한달 이내
+  quarter = 'quarter',        // 석달 이내
+  year = 'year',              // 일년 이내
+  longAgo = 'longAgo'         // 오래전
 }
 
 export enum GoodsCondition {
-  unopend,    // 미개봉
-  almostNew,  // 거의 새제품
-  used        // 사용감 있음
+  undefined = '',
+  unopend = 'unopend',        // 미개봉
+  almostNew = 'almostNew',    // 거의 새제품
+  used = 'used'               // 사용감 있음
 }
 
 export enum GoodsDelivery {
-  directly,   // 직거래
-  courier     // 택배
+  undefined = '',
+  directly = 'directly',      // 직거래
+  courier = 'courier'         // 택배
 }
 
 export interface Goods {
   id: string;
   user: UserRef;
-  name: string;
+  title: string;
+  public: boolean;
   category: GoodsCategory;
   purchaseTime: GoodsPurchaseTime;
   condition: GoodsCondition;
@@ -50,5 +55,9 @@ export interface Goods {
   updated: firestore.Timestamp;
 }
 
-export type NewGoods = Omit<Goods, 'id'>;
+export type NewGoods = Omit<Goods, 'id' | 'created' | 'updated'> & {
+  created: firestore.FieldValue,
+  updated: firestore.FieldValue
+};
+
 export type GoodsRef = firestore.DocumentReference;

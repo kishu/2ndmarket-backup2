@@ -9,6 +9,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 import { environment } from '@environments/environment';
 import { AuthModule } from '@app/modules/auth/auth.module';
+import { GoodsModule } from '@app/modules/goods/goods.module';
 import { AuthService } from '@app/core/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -35,6 +36,7 @@ export function appInitializer(authService: AuthService) {
     AngularFireAuthGuardModule,
     AngularFirestoreModule,
     AuthModule,
+    GoodsModule,
     AppRoutingModule
   ],
   providers: [
