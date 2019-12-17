@@ -190,7 +190,8 @@
     <div>
       <ul>
         <li *ngFor="let imageFile of imageFileMap | keyvalue">
-          <img [src]="imageFile.value | objectURL" [alt]="imageFile.key">
+          <div class="goods_thumb rotate0" [style.backgroundImage]="'url(' + (imageFile.value | objectURL) + ')' | sanitizer: 'style'">
+          </div>
         </li>
       </ul>
     </div>
