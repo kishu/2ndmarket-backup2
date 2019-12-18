@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
+import { CloudinaryService } from '@app/core/http/cloudinary.service';
 import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, NewGoods } from '@app/core/model/goods';
 
 @Component({
@@ -24,7 +25,10 @@ export class GoodsFormComponent implements OnInit {
   get deliveryEtc() { return this.goodsForm.get('deliveryEtc'); }
   get title() { return this.goodsForm.get('title'); }
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private cloudinaryService: CloudinaryService
+  ) {
   }
 
   ngOnInit() {
@@ -48,6 +52,14 @@ export class GoodsFormComponent implements OnInit {
       const id = uuid();
       this.imageFileMap.set(id, fileList[i]);
     }
+  }
+
+  test() {
+    const files = Array.from(this.imageFileMap.values());
+    const progress$ = this.cloudinaryService.upload(files);
+    progress$.subscribe(p => {
+      console.log(p);
+    });
   }
 
   onSubmit() {
