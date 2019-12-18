@@ -199,6 +199,7 @@
       <input
         type="file"
         accept="image/gif, image/jpeg, image/png"
+        multiple
         (change)="onChangeImage($event)">
     </div>
   </div>
@@ -226,5 +227,6 @@
       등록
     </button>
     <button type="button" (click)="test()">업로드 테스트</button>
+    {{ uploadedFileCount }}({{ uploadedFilePercent }}%) / {{ totalFileCount }}
   </div>
 </form>

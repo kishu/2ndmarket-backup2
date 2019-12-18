@@ -1,9 +1,9 @@
 import { v4 as uuid } from 'uuid';
 import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
 import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, NewGoods } from '@app/core/model/goods';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-goods-form',
@@ -18,6 +18,9 @@ export class GoodsFormComponent implements OnInit {
   public goodsCondition = GoodsCondition;
   public goodsDelivery = GoodsDelivery;
   public imageFileMap = new Map<string, File>();
+  public totalFileCount = 0;
+  public uploadedFilePercent = 0;
+  public uploadedFileCount = 0;
   public submitting = false;
 
   get contact() { return this.goodsForm.get('contact'); }
@@ -50,16 +53,23 @@ export class GoodsFormComponent implements OnInit {
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
       const id = uuid();
+      this.totalFileCount = this.totalFileCount + 1;
       this.imageFileMap.set(id, fileList[i]);
     }
   }
 
   test() {
-    const files = Array.from(this.imageFileMap.values());
-    const progress$ = this.cloudinaryService.upload(files);
-    progress$.subscribe(p => {
-      console.log(p);
-    });
+    for (const file of this.imageFileMap.values()) {
+      this.cloudinaryService.upload(file).subscribe(e => {
+        if (e.type === HttpEventType.UploadProgress) {
+          this.uploadedFilePercent = Math.round(100 * e.loaded / e.total);
+          console.log('loaded', this.uploadedFilePercent + '%');
+        } else if (e.type === HttpEventType.Response) {
+          console.log('response', e.body);
+          this.uploadedFileCount = this.uploadedFileCount + 1;
+        }
+      });
+    }
   }
 
   onSubmit() {
