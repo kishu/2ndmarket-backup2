@@ -1,8 +1,7 @@
-import { v4 as uuid } from 'uuid';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, ImageFileItem, NewGoods } from '@app/core/model';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
-import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, NewGoods } from '@app/core/model/goods';
 import { HttpEventType } from '@angular/common/http';
 
 @Component({
@@ -17,16 +16,18 @@ export class GoodsFormComponent implements OnInit {
   public goodsPurchaseTime = GoodsPurchaseTime;
   public goodsCondition = GoodsCondition;
   public goodsDelivery = GoodsDelivery;
-  public imageFileMap = new Map<string, File>();
-  public totalFileCount = 0;
-  public uploadedFilePercent = 0;
+  public imageFiles: ImageFileItem[] = [];
   public uploadedFileCount = 0;
+  public uploadedPercent = 0;
   public submitting = false;
 
   get contact() { return this.goodsForm.get('contact'); }
   get delivery() { return this.goodsForm.get('delivery'); }
   get deliveryEtc() { return this.goodsForm.get('deliveryEtc'); }
   get title() { return this.goodsForm.get('title'); }
+
+  get imageFileCount() { return this.imageFiles.length; }
+  get imageFileSize() { return this.imageFiles.reduce((a, c) => (a + c.file.size), 0); }
 
   constructor(
     private fb: FormBuilder,
@@ -44,6 +45,7 @@ export class GoodsFormComponent implements OnInit {
       condition: [g.condition],
       delivery: [g.delivery],
       deliveryEtc: [g.deliveryEtc],
+      images: [g.images],
       contact: [g.contact]
     });
   }
@@ -52,18 +54,28 @@ export class GoodsFormComponent implements OnInit {
     const fileList = (e.target as HTMLInputElement).files;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
-      const id = uuid();
-      this.totalFileCount = this.totalFileCount + 1;
-      this.imageFileMap.set(id, fileList[i]);
+      const file = fileList[i];
+      this.imageFiles.push({ rotate: 0, file });
+      console.log(this.imageFiles);
     }
   }
 
+  onClickRotateImage(e: Event, item: ImageFileItem) {
+    e.preventDefault();
+  }
+
+  onClickDeleteImage(e: Event, item: ImageFileItem) {
+    e.preventDefault();
+    const idx = this.imageFiles.findIndex(v => v.file.);
+    this.imageFiles.splice(idx, idx);
+  }
+
   test() {
-    for (const file of this.imageFileMap.values()) {
-      this.cloudinaryService.upload(file).subscribe(e => {
+    for (const imageFileItem of this.imageFiles) {
+      this.cloudinaryService.upload(imageFileItem.file).subscribe(e => {
         if (e.type === HttpEventType.UploadProgress) {
-          this.uploadedFilePercent = Math.round(100 * e.loaded / e.total);
-          console.log('loaded', this.uploadedFilePercent + '%');
+          this.uploadedPercent = Math.round(100 * e.loaded / e.total);
+          console.log('loaded', this.uploadedPercent + '%');
         } else if (e.type === HttpEventType.Response) {
           console.log('response', e.body);
           this.uploadedFileCount = this.uploadedFileCount + 1;

@@ -1,19 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ObjectURLPipe } from './pipes';
-import { SanitizerPipe } from './pipes/sanitizer.pipe';
+import { FromBytesPipe, ObjectURLPipe, SanitizerPipe } from './pipes';
 
 @NgModule({
   declarations: [
     ObjectURLPipe,
-    SanitizerPipe
+    SanitizerPipe,
+    FromBytesPipe
   ],
   imports: [
     CommonModule
   ],
   exports: [
     ObjectURLPipe,
-    SanitizerPipe
+    SanitizerPipe,
+    FromBytesPipe
   ]
 })
 export class SharedModule { }
