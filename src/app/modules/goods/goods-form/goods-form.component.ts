@@ -60,14 +60,15 @@ export class GoodsFormComponent implements OnInit {
     }
   }
 
-  onClickRotateImage(e: Event, item: ImageFileItem) {
+  onClickRotateImage(e: Event, imageFileItem: ImageFileItem) {
     e.preventDefault();
+    const rotate = imageFileItem.rotate + 90;
+    imageFileItem.rotate = rotate >= 360 ? 0 : rotate;
   }
 
-  onClickDeleteImage(e: Event, item: ImageFileItem) {
+  onClickDeleteImage(e: Event, idx: number) {
     e.preventDefault();
-    const idx = this.imageFiles.findIndex(v => v.file.);
-    this.imageFiles.splice(idx, idx);
+    this.imageFiles.splice(idx, 1);
   }
 
   test() {

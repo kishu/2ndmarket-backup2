@@ -197,11 +197,11 @@
         <li *ngFor="let imageFileItem of imageFiles; index as i">
           <div
             class="goods_thumb"
-            [style.backgroundImage]="'url(' + (imageFileItem.file | objectURL) + ')' | sanitizer: 'style'"
-            data-rotate="0">
+            [style.transform] = "'rotate(' + imageFileItem.rotate + 'deg)'"
+            [style.backgroundImage]="'url(' + (imageFileItem.file | objectURL) + ')' | sanitizer: 'style'">
           </div>
           <div>
-            <a href="#" (click)="onClickRotateImage($event, imageFileItem)">회전</a>, <a href="#" (click)="onClickDeleteImage($event, imageFileItem)">삭제</a>
+            <a href="#" (click)="onClickRotateImage($event, imageFileItem)">회전</a>, <a href="#" (click)="onClickDeleteImage($event, i)">삭제</a>
           </div>
         </li>
       </ul>
