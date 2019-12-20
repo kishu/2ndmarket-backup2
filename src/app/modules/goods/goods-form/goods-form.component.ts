@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, ImageFileItem, NewGoods } from '@app/core/model';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
-import { HttpEventType } from '@angular/common/http';
+import { ImageResizeService } from '@app/shared/services';
 
 @Component({
   selector: 'app-goods-form',
@@ -31,6 +31,7 @@ export class GoodsFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private imageResizeService: ImageResizeService,
     private cloudinaryService: CloudinaryService
   ) {
   }
@@ -54,9 +55,12 @@ export class GoodsFormComponent implements OnInit {
     const fileList = (e.target as HTMLInputElement).files;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
-      const file = fileList[i];
-      this.imageFiles.push({ rotate: 0, file });
-      console.log(this.imageFiles);
+      const imageFile = fileList[i];
+      console.log('1', imageFile);
+      this.imageResizeService.resizeImageFile(imageFile).subscribe(file => {
+        this.imageFiles.push({ rotate: 0, file });
+        console.log('2', file);
+      });
     }
   }
 
@@ -72,17 +76,17 @@ export class GoodsFormComponent implements OnInit {
   }
 
   test() {
-    for (const imageFileItem of this.imageFiles) {
-      this.cloudinaryService.upload(imageFileItem.file).subscribe(e => {
-        if (e.type === HttpEventType.UploadProgress) {
-          this.uploadedPercent = Math.round(100 * e.loaded / e.total);
-          console.log('loaded', this.uploadedPercent + '%');
-        } else if (e.type === HttpEventType.Response) {
-          console.log('response', e.body);
-          this.uploadedFileCount = this.uploadedFileCount + 1;
-        }
-      });
-    }
+    // for (const imageFileItem of this.imageFiles) {
+    //   this.cloudinaryService.upload(imageFileItem.file).subscribe(e => {
+    //     if (e.type === HttpEventType.UploadProgress) {
+    //       this.uploadedPercent = Math.round(100 * e.loaded / e.total);
+    //       console.log('loaded', this.uploadedPercent + '%');
+    //     } else if (e.type === HttpEventType.Response) {
+    //       console.log('response', e.body);
+    //       this.uploadedFileCount = this.uploadedFileCount + 1;
+    //     }
+    //   });
+    // }
   }
 
   onSubmit() {
