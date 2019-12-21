@@ -28,7 +28,7 @@ export class ImageResizeService {
     }
   }
 
-  public resize(file: File, leastImageWidth = 800, leastFileSize = 1048576): Promise<File> {
+  public resize(file: File, leastWidth = 800, leastFileSize = 1048576): Promise<File> {
     if (file.size < leastFileSize) {
       return Promise.resolve(file);
     } else {
@@ -38,11 +38,11 @@ export class ImageResizeService {
         image.addEventListener('load', () => {
           let toWidth = image.width;
           let toHeight = image.height;
-          if (image.width > leastImageWidth) {
-            toWidth = leastImageWidth;
+          if (image.width > leastWidth) {
+            toWidth = leastWidth;
             toHeight = image.height * (toWidth / image.width);
           }
-          // 이미지 사이즈를 변환해야 한다면
+          // 이미지 사이즈를 변경해야 한다면
           if (toWidth !== image.width) {
             // step 1
             const canvas1 = document.createElement('canvas');
