@@ -1,8 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, ImageFileItem, NewGoods } from '@app/core/model';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
 import { ImageResizeService } from '@app/shared/services';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-goods-form',
@@ -17,9 +18,11 @@ export class GoodsFormComponent implements OnInit {
   public goodsCondition = GoodsCondition;
   public goodsDelivery = GoodsDelivery;
   public imageFiles: ImageFileItem[] = [];
+  public uploadFiles: File[] = [];
   public uploadedFileCount = 0;
   public uploadedPercent = 0;
   public submitting = false;
+  public uploadedImageSrcs = [];
 
   get contact() { return this.goodsForm.get('contact'); }
   get delivery() { return this.goodsForm.get('delivery'); }
@@ -30,6 +33,7 @@ export class GoodsFormComponent implements OnInit {
   get imageFileSize() { return this.imageFiles.reduce((a, c) => (a + c.file.size), 0); }
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private imageResizeService: ImageResizeService,
     private cloudinaryService: CloudinaryService
@@ -55,19 +59,18 @@ export class GoodsFormComponent implements OnInit {
     const fileList = (e.target as HTMLInputElement).files;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
-      const imageFile = fileList[i];
-      console.log('1', imageFile);
-      this.imageResizeService.resizeImageFile(imageFile).subscribe(file => {
-        this.imageFiles.push({ rotate: 0, file });
-        console.log('2', file);
+      const file = fileList[i];
+      console.log('before resize', file.size, file);
+      this.imageResizeService.resize(file).then(f => {
+        this.imageFiles.push({ rotate: 0, file: f });
+        console.log('after resize', f.size, f);
       });
     }
   }
 
-  onClickRotateImage(e: Event, imageFileItem: ImageFileItem) {
+  onClickRotateImage(e: Event, imageFileItem: ImageFileItem, degree: number) {
     e.preventDefault();
-    const rotate = imageFileItem.rotate + 90;
-    imageFileItem.rotate = rotate >= 360 ? 0 : rotate;
+    imageFileItem.rotate = (imageFileItem.rotate + degree) % 360;
   }
 
   onClickDeleteImage(e: Event, idx: number) {
@@ -75,18 +78,24 @@ export class GoodsFormComponent implements OnInit {
     this.imageFiles.splice(idx, 1);
   }
 
-  test() {
-    // for (const imageFileItem of this.imageFiles) {
-    //   this.cloudinaryService.upload(imageFileItem.file).subscribe(e => {
-    //     if (e.type === HttpEventType.UploadProgress) {
-    //       this.uploadedPercent = Math.round(100 * e.loaded / e.total);
-    //       console.log('loaded', this.uploadedPercent + '%');
-    //     } else if (e.type === HttpEventType.Response) {
-    //       console.log('response', e.body);
-    //       this.uploadedFileCount = this.uploadedFileCount + 1;
-    //     }
-    //   });
-    // }
+  upload() {
+    const promises = this.imageFiles.map(i => {
+      return this.imageResizeService.rotate(i.file, i.rotate);
+    });
+    Promise.all(promises).then(files => {
+      for (const f of files) {
+        this.cloudinaryService.upload(f).subscribe(e => {
+          if (e.type === HttpEventType.UploadProgress) {
+            this.uploadedPercent = Math.round(100 * e.loaded / e.total);
+            console.log('loaded', this.uploadedPercent + '%');
+          } else if (e.type === HttpEventType.Response) {
+            console.log('response', e.body);
+            this.uploadedImageSrcs.push(e.body.secure_url);
+            this.uploadedFileCount = this.uploadedFileCount + 1;
+          }
+        });
+      }
+    });
   }
 
   onSubmit() {
