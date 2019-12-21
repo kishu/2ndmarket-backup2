@@ -244,24 +244,3 @@
     {{ uploadedFileCount }}({{ uploadedPercent }}%) / {{ imageFileCount }}
   </div>
 </form>
-<div>
-  <ul>
-    <li *ngFor="let item of imageFiles; index as i">
-      <img [src]="item.file | objectURL | sanitizer: 'url'" alt="">
-    </li>
-  </ul>
-</div>
-<div>
-  <ul>
-    <li *ngFor="let file of uploadFiles; index as i">
-      <img [src]="file | objectURL | sanitizer: 'url'" alt="">
-    </li>
-  </ul>
-</div>
-<div>
-  <ul>
-    <li *ngFor="let src of uploadedImageSrcs">
-      <img [src]="src" alt="">
-    </li>
-  </ul>
-</div>

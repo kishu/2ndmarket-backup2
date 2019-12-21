@@ -22,7 +22,6 @@ export class GoodsFormComponent implements OnInit {
   public uploadedFileCount = 0;
   public uploadedPercent = 0;
   public submitting = false;
-  public uploadedImageSrcs = [];
 
   get contact() { return this.goodsForm.get('contact'); }
   get delivery() { return this.goodsForm.get('delivery'); }
@@ -87,10 +86,7 @@ export class GoodsFormComponent implements OnInit {
         this.cloudinaryService.upload(f).subscribe(e => {
           if (e.type === HttpEventType.UploadProgress) {
             this.uploadedPercent = Math.round(100 * e.loaded / e.total);
-            console.log('loaded', this.uploadedPercent + '%');
           } else if (e.type === HttpEventType.Response) {
-            console.log('response', e.body);
-            this.uploadedImageSrcs.push(e.body.secure_url);
             this.uploadedFileCount = this.uploadedFileCount + 1;
           }
         });

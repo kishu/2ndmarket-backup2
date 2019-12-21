@@ -28,7 +28,7 @@ export class ImageResizeService {
     }
   }
 
-  public resize(file: File, imageWidthLimit = 720, leastFileSize = 1048576): Promise<File> {
+  public resize(file: File, leastImageWidth = 800, leastFileSize = 1048576): Promise<File> {
     if (file.size < leastFileSize) {
       return Promise.resolve(file);
     } else {
@@ -38,8 +38,8 @@ export class ImageResizeService {
         image.addEventListener('load', () => {
           let toWidth = image.width;
           let toHeight = image.height;
-          if (image.width > imageWidthLimit) {
-            toWidth = imageWidthLimit;
+          if (image.width > leastImageWidth) {
+            toWidth = leastImageWidth;
             toHeight = image.height * (toWidth / image.width);
           }
           // 이미지 사이즈를 변환해야 한다면
