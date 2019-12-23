@@ -22,16 +22,13 @@ export class GoodsFormComponent implements OnInit {
   public uploadedFileCount = 0;
   public uploadedPercent = 0;
   public submitting = false;
-
   get contact() { return this.goodsForm.get('contact'); }
   get delivery() { return this.goodsForm.get('delivery'); }
   get deliveryEtc() { return this.goodsForm.get('deliveryEtc'); }
   get title() { return this.goodsForm.get('title'); }
-
   get sortedImageFileItem() { return this.imageFileItems.sort((a, b) => a.order - b.order ); }
   get imageFileCount() { return this.imageFileItems.length; }
   get imageFileSize() { return this.imageFileItems.reduce((a, c) => (a + c.file.size), 0); }
-
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -57,7 +54,10 @@ export class GoodsFormComponent implements OnInit {
   }
 
   onChangeImage(e: Event) {
-    const lastImage = this.imageFileItems.reduce((p, c) => p.order > c.order ? p : c);
+    let lastOrder = 0;
+    if (this.imageFileItems.length > 0) {
+      lastOrder = this.imageFileItems.reduce((p, c) => p.order > c.order ? p : c).order;
+    }
     const fileList = (e.target as HTMLInputElement).files;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
@@ -65,7 +65,7 @@ export class GoodsFormComponent implements OnInit {
       // console.log('before resize', file.size, file);
       this.imageResizeService.resize(file).then(f => {
         this.imageFileItems.push({
-          order: lastImage.order + i + 1,
+          order: lastOrder + i + 1,
           file: f,
           rotate: 0
         });
@@ -74,12 +74,16 @@ export class GoodsFormComponent implements OnInit {
     }
   }
 
-  onClickRotateImage(imageFileItem: ImageFileItem, degree: number) {
-    imageFileItem.rotate = (imageFileItem.rotate + degree) % 360;
+  onClickRotateImage(item: ImageFileItem, degree: number) {
+    item.rotate = (item.rotate + degree) % 360;
   }
 
-  onClickMoveImage(imageFileItem: ImageFileItem, step: number) {
-    const idx = this.imageFileItems.findIndex(i => i.order === imageFileItem.order);
+  onClickMoveImage(item: ImageFileItem, step: number) {
+    const currentOrder = item.order;
+    const nextOrder = item.order + step;
+    const nextItem = this.imageFileItems.find(i => i.order === nextOrder);
+    item.order = nextOrder;
+    nextItem.order = currentOrder;
   }
 
   onClickDeleteImage(idx: number) {
