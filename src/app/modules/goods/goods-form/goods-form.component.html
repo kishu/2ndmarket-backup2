@@ -194,7 +194,7 @@
     </div>
     <div>
       <ul>
-        <li *ngFor="let imageFileItem of imageFiles; index as i">
+        <li *ngFor="let imageFileItem of sortedImageFileItem; index as i">
           <div
             class="goods_thumb"
             [style.transform] = "'rotate(' + imageFileItem.rotate + 'deg)'"
@@ -202,9 +202,11 @@
           </div>
           <div>
             <span>rotate: ({{ imageFileItem.rotate }})</span> |
-            <a href="#" (click)="onClickRotateImage($event, imageFileItem, 90)">회전(90)</a> |
-            <a href="#" (click)="onClickRotateImage($event, imageFileItem, -90)">회전(-90)</a> |
-            <a href="#" (click)="onClickDeleteImage($event, i)">삭제</a>
+            <button type="button" (click)="onClickRotateImage(imageFileItem, 90)">회전(90)</button> |
+            <button type="button" (click)="onClickRotateImage(imageFileItem, -90)">회전(-90)</button> |
+            <button type="button" (click)="onClickMoveImage(imageFileItem, -1)">앞으로</button>
+            <button type="button" (click)="onClickMoveImage(imageFileItem, 1)">뒤로</button>
+            <button type="button" (click)="onClickDeleteImage(i)">삭제</button>
           </div>
         </li>
       </ul>

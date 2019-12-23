@@ -17,7 +17,7 @@ export class GoodsFormComponent implements OnInit {
   public goodsPurchaseTime = GoodsPurchaseTime;
   public goodsCondition = GoodsCondition;
   public goodsDelivery = GoodsDelivery;
-  public imageFiles: ImageFileItem[] = [];
+  public imageFileItems: ImageFileItem[] = [];
   public uploadFiles: File[] = [];
   public uploadedFileCount = 0;
   public uploadedPercent = 0;
@@ -28,8 +28,10 @@ export class GoodsFormComponent implements OnInit {
   get deliveryEtc() { return this.goodsForm.get('deliveryEtc'); }
   get title() { return this.goodsForm.get('title'); }
 
-  get imageFileCount() { return this.imageFiles.length; }
-  get imageFileSize() { return this.imageFiles.reduce((a, c) => (a + c.file.size), 0); }
+  get sortedImageFileItem() { return this.imageFileItems.sort((a, b) => a.order - b.order ); }
+  get imageFileCount() { return this.imageFileItems.length; }
+  get imageFileSize() { return this.imageFileItems.reduce((a, c) => (a + c.file.size), 0); }
+
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -55,30 +57,37 @@ export class GoodsFormComponent implements OnInit {
   }
 
   onChangeImage(e: Event) {
+    const lastImage = this.imageFileItems.reduce((p, c) => p.order > c.order ? p : c);
     const fileList = (e.target as HTMLInputElement).files;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
-      console.log('before resize', file.size, file);
+      // console.log('before resize', file.size, file);
       this.imageResizeService.resize(file).then(f => {
-        this.imageFiles.push({ rotate: 0, file: f });
-        console.log('after resize', f.size, f);
+        this.imageFileItems.push({
+          order: lastImage.order + i + 1,
+          file: f,
+          rotate: 0
+        });
+        // console.log('after resize', f.size, f);
       });
     }
   }
 
-  onClickRotateImage(e: Event, imageFileItem: ImageFileItem, degree: number) {
-    e.preventDefault();
+  onClickRotateImage(imageFileItem: ImageFileItem, degree: number) {
     imageFileItem.rotate = (imageFileItem.rotate + degree) % 360;
   }
 
-  onClickDeleteImage(e: Event, idx: number) {
-    e.preventDefault();
-    this.imageFiles.splice(idx, 1);
+  onClickMoveImage(imageFileItem: ImageFileItem, step: number) {
+    const idx = this.imageFileItems.findIndex(i => i.order === imageFileItem.order);
+  }
+
+  onClickDeleteImage(idx: number) {
+    this.imageFileItems.splice(idx, 1);
   }
 
   upload() {
-    const promises = this.imageFiles.map(i => {
+    const promises = this.imageFileItems.map(i => {
       return this.imageResizeService.rotate(i.file, i.rotate);
     });
     return Promise.all(promises).then(files => {
