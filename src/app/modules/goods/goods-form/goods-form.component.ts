@@ -81,13 +81,17 @@ export class GoodsFormComponent implements OnInit {
     const promises = this.imageFiles.map(i => {
       return this.imageResizeService.rotate(i.file, i.rotate);
     });
-    Promise.all(promises).then(files => {
+    return Promise.all(promises).then(files => {
       for (const f of files) {
         this.cloudinaryService.upload(f).subscribe(e => {
           if (e.type === HttpEventType.UploadProgress) {
             this.uploadedPercent = Math.round(100 * e.loaded / e.total);
           } else if (e.type === HttpEventType.Response) {
+            console.log(e);
+            // res.body.eager[0].secure_url;
             this.uploadedFileCount = this.uploadedFileCount + 1;
+          } else {
+            console.log('etc', e);
           }
         });
       }
