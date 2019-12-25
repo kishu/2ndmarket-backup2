@@ -1,9 +1,29 @@
+import { v1 as uuid } from 'uuid';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, ImageFileItem, NewGoods } from '@app/core/model';
+import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, NewGoods } from '@app/core/model';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
 import { ImageResizeService } from '@app/shared/services';
 import { HttpEventType } from '@angular/common/http';
+
+export enum GoodsImageType {
+  'file' = 'file',
+  'url' = 'url'
+}
+
+export interface GoodsImageFile {
+  type: GoodsImageType;
+  id: string;
+  file: File;
+  rotate: number;
+}
+
+export interface GoodsImageUrl {
+  type: GoodsImageType;
+  url: string;
+}
+
+export type GoodsImage = (GoodsImageFile | GoodsImageUrl);
 
 @Component({
   selector: 'app-goods-form',
@@ -17,8 +37,7 @@ export class GoodsFormComponent implements OnInit {
   public goodsPurchaseTime = GoodsPurchaseTime;
   public goodsCondition = GoodsCondition;
   public goodsDelivery = GoodsDelivery;
-  public imageFileItems: ImageFileItem[] = [];
-  public uploadFiles: File[] = [];
+  public goodsImages: GoodsImage[] = [];
   public uploadedFileCount = 0;
   public uploadedPercent = 0;
   public submitting = false;
@@ -26,9 +45,16 @@ export class GoodsFormComponent implements OnInit {
   get delivery() { return this.goodsForm.get('delivery'); }
   get deliveryEtc() { return this.goodsForm.get('deliveryEtc'); }
   get title() { return this.goodsForm.get('title'); }
-  get sortedImageFileItem() { return this.imageFileItems.sort((a, b) => a.order - b.order ); }
-  get imageFileCount() { return this.imageFileItems.length; }
-  get imageFileSize() { return this.imageFileItems.reduce((a, c) => (a + c.file.size), 0); }
+  get imageFileCount() {
+    return this.goodsImages
+    .filter(i => typeof i !== 'string' )
+    .length;
+  }
+  get imageFileSize() {
+    return this.goodsImages
+      .filter(i => typeof i !== 'string' )
+      .reduce((a, c) => (a + (c as GoodsImageFile).file.size), 0);
+  }
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -54,18 +80,15 @@ export class GoodsFormComponent implements OnInit {
   }
 
   onChangeImage(e: Event) {
-    let lastOrder = 0;
-    if (this.imageFileItems.length > 0) {
-      lastOrder = this.imageFileItems.reduce((p, c) => p.order > c.order ? p : c).order;
-    }
     const fileList = (e.target as HTMLInputElement).files;
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
       // console.log('before resize', file.size, file);
       this.imageResizeService.resize(file).then(f => {
-        this.imageFileItems.push({
-          order: lastOrder + i + 1,
+        this.goodsImages.push({
+          type: GoodsImageType.file,
+          id: uuid(),
           file: f,
           rotate: 0
         });
@@ -74,16 +97,12 @@ export class GoodsFormComponent implements OnInit {
     }
   }
 
-  onClickRotateImage(item: ImageFileItem, degree: number) {
-    item.rotate = (item.rotate + degree) % 360;
+  onClickRotateImage(image: GoodsImageFile, degree: number) {
+    image.rotate = (image.rotate + degree) % 360;
   }
 
-  onClickMoveImage(item: ImageFileItem, step: number) {
-    const currentOrder = item.order;
-    const nextOrder = item.order + step;
-    const nextItem = this.imageFileItems.find(i => i.order === nextOrder);
-    item.order = nextOrder;
-    nextItem.order = currentOrder;
+  onClickMoveImage(image: GoodsImage | GoodsImageUrl, curr: number, to: number) {
+    array.splice(index, 0, ...elements);
   }
 
   onClickDeleteImage(idx: number) {

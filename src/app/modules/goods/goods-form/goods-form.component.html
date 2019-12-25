@@ -194,19 +194,24 @@
     </div>
     <div>
       <ul>
-        <li *ngFor="let imageFileItem of sortedImageFileItem; index as i">
+        <li *ngFor="let image of goodsImages; index as i">
           <div
+            *ngIf="image.type === 'file'"
             class="goods_thumb"
-            [style.transform] = "'rotate(' + imageFileItem.rotate + 'deg)'"
-            [style.backgroundImage]="'url(' + (imageFileItem.file | objectURL) + ')' | sanitizer: 'style'">
+            [style.transform] = "'rotate(' + image.rotate + 'deg)'"
+            [style.backgroundImage]="'url(' + (image.file | objectURL) + ')' | sanitizer: 'style'">
+          </div>
+          <div
+            *ngIf="image.type === 'url'"
+            class="goods_thumb"
+            [style.backgroundImage]="'url(' + (image.url | sanitizer: 'url' ) + ')'">
           </div>
           <div>
-            <span>order: ({{ imageFileItem.order }})</span> |
-            <span>rotate: ({{ imageFileItem.rotate }})</span> |
-            <button type="button" (click)="onClickMoveImage(imageFileItem, -1)">앞으로</button> |
-            <button type="button" (click)="onClickMoveImage(imageFileItem, 1)">뒤로</button> |
-            <button type="button" (click)="onClickRotateImage(imageFileItem, 90)">회전(90)</button> |
-            <button type="button" (click)="onClickRotateImage(imageFileItem, -90)">회전(-90)</button> |
+            <span>rotate: ({{ image.rotate }})</span> |
+            <button type="button" (click)="onClickMoveImage(image, i, i - 1)">앞으로</button> |
+            <button type="button" (click)="onClickMoveImage(image, i, i + 1)">뒤로</button> |
+            <button type="button" (click)="onClickRotateImage(image, 90)">회전(90)</button> |
+            <button type="button" (click)="onClickRotateImage(image, -90)">회전(-90)</button> |
             <button type="button" (click)="onClickDeleteImage(i)">삭제</button>
           </div>
         </li>
