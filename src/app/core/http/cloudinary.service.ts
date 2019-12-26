@@ -29,8 +29,8 @@ export class CloudinaryService {
     const signature = `context=${context}&eager=${eager}&folder=${cloudinary.folder}&timestamp=${timestamp}${cloudinary.apiSecret}`;
     const fd = new FormData();
     fd.set('api_key', cloudinary.apiKey);
-    fd.set('eager-async', `${eagerAsync}`);
     fd.set('eager', eager);
+    fd.set('eager-async', `${eagerAsync}`);
     fd.set('file', file);
     fd.set('folder', cloudinary.folder);
     fd.set('context', context);

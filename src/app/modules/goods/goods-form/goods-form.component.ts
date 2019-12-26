@@ -1,13 +1,24 @@
 import { v4 as uuid } from 'uuid';
 import * as arrayMove from 'array-move';
 import * as faker from 'faker';
+import { merge, Observable, Subject } from 'rxjs';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-// tslint:disable-next-line:max-line-length
-import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, ImageFile, ImageType, ImageUrl, NewGoods } from '@app/core/model';
+import {
+  Goods,
+  GoodsCategory,
+  GoodsCondition,
+  GoodsDelivery,
+  GoodsPurchaseTime,
+  ImageFile,
+  ImageType,
+  ImageUrl,
+  NewGoods
+} from '@app/core/model';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
 import { ImageResizeService } from '@app/shared/services';
 import { HttpEventType } from '@angular/common/http';
+
 declare type GoodsImage = (ImageFile | ImageUrl);
 
 @Component({
@@ -59,9 +70,10 @@ export class GoodsFormComponent implements OnInit {
       condition: [g.condition],
       delivery: [g.delivery],
       deliveryEtc: [g.deliveryEtc],
-      images: [g.images],
+      images: [g.images], // this will re-assign when submit
       contact: [g.contact]
     });
+    this.goodsImages = g.images.map(url => ({ type: 'url', url, rotate: 0 } as ImageUrl));
   }
 
   onChangeImage(e: Event) {
@@ -69,7 +81,6 @@ export class GoodsFormComponent implements OnInit {
     // tslint:disable-next-line:prefer-for-of
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
-      // console.log('before resize', file.size, file);
       this.imageResizeService.resize(file).then(f => {
         this.goodsImages.push({
           type: ImageType.file,
@@ -77,7 +88,6 @@ export class GoodsFormComponent implements OnInit {
           file: f,
           rotate: 0
         });
-        // console.log('after resize', f.size, f);
       });
     }
   }
@@ -96,28 +106,49 @@ export class GoodsFormComponent implements OnInit {
     this.goodsImages.splice(idx, 1);
   }
 
-  upload() {
-    const imageFiles = this.goodsImages.filter(img => img.type === ImageType.file);
-    imageFiles.forEach((img: ImageFile) => {
-      this.cloudinaryService.upload(img.file, img.rotate, `id=${img.id}`).subscribe(e => {
+  upload(): Observable<null> {
+    const uploaded$ = new Subject<null>();
+    const goodsImageFiles = this.goodsImages.filter(image => image.type === ImageType.file);
+    console.log('asdf', goodsImageFiles, goodsImageFiles.length);
+    if (goodsImageFiles.length === 0) {
+      uploaded$.next();
+      uploaded$.complete();
+      console.log('234234234');
+      return uploaded$;
+    } else {
+      const uploads$ = goodsImageFiles.map((image: ImageFile) => {
+        return this.cloudinaryService.upload(image.file, image.rotate, `id=${image.id}`);
+      });
+      merge(...uploads$).subscribe((e: any) => {
         if (e.type === HttpEventType.UploadProgress) {
           this.uploadedPercent = Math.round(100 * e.loaded / e.total);
         } else if (e.type === HttpEventType.Response) {
-          const uploadedImage = imageFiles.find((i: ImageFile) => i.id = e.body.context.custom.id);
-          uploadedImage.url = e.body.eager[0].secure_url;
-          // console.log(uploadedImage, imageFiles, this.goodsImages);
+          // complete image file upload
+          const id = e.body.context.custom.id;
+          const url = e.body.eager[0].secure_url;
+          this.goodsImages.find((i: ImageFile) => i.id === id).url = url;
           this.uploadedFileCount = this.uploadedFileCount + 1;
-          // if (this.uploadedFileCount === imageFiles.length) {
-          //   this.goodsForm.get('images').setValue(this.goodsImages.map(i => i.url));
-          // }
-          // console.log(this.goodsImages);
+          if (this.uploadedFileCount === goodsImageFiles.length) {
+            uploaded$.next();
+            uploaded$.complete();
+          }
         }
       });
-    });
+      return uploaded$;
+    }
   }
 
   onSubmit() {
-    this.goods = { ...this.goods, ...this.goodsForm.value };
+    console.log('1');
+    this.upload().subscribe(() => {
+      console.log('2');
+      const images = this.goodsImages.map(i => i.url);
+      this.goodsForm.get('images').setValue(images);
+      this.goods = { ...this.goods, ...this.goodsForm.value };
+      console.log(this.goods);
+    }, (err) => {
+      console.log(err);
+    });
   }
 
   faker() {

@@ -250,11 +250,12 @@
     |
     <button
       type="submit"
-      [disabled]="!goodsForm.valid">
+      [disabled]="goodsForm.invalid">
       등록
     </button>
   </div>
 </form>
 <div>
   <p> {{ goodsForm.value | json }}</p>
+  <p> {{ goodsForm.errors | json }}</p>
 </div>
