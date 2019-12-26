@@ -105,12 +105,12 @@ export class GoodsFormComponent implements OnInit {
         } else if (e.type === HttpEventType.Response) {
           const uploadedImage = imageFiles.find((i: ImageFile) => i.id = e.body.context.custom.id);
           uploadedImage.url = e.body.eager[0].secure_url;
-          console.log(uploadedImage, imageFiles, this.goodsImages);
+          // console.log(uploadedImage, imageFiles, this.goodsImages);
           this.uploadedFileCount = this.uploadedFileCount + 1;
           // if (this.uploadedFileCount === imageFiles.length) {
           //   this.goodsForm.get('images').setValue(this.goodsImages.map(i => i.url));
           // }
-          console.log(this.goodsImages);
+          // console.log(this.goodsImages);
         }
       });
     });
