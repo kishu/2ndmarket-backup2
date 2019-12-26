@@ -1,5 +1,6 @@
-import { v1 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import * as arrayMove from 'array-move';
+import * as faker from 'faker';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 // tslint:disable-next-line:max-line-length
@@ -86,7 +87,9 @@ export class GoodsFormComponent implements OnInit {
   }
 
   onClickMoveImage(from: number, to: number) {
-    arrayMove(this.goodsImages, from, to);
+    if (to > 0 && to < this.goodsImages.length) {
+      this.goodsImages = arrayMove(this.goodsImages, from, to);
+    }
   }
 
   onClickDeleteImage(idx: number) {
@@ -95,29 +98,37 @@ export class GoodsFormComponent implements OnInit {
 
   upload() {
     const imageFiles = this.goodsImages.filter(img => img.type === ImageType.file);
-    // const promises = imageFiles.map((img: ImageFile) => {
-    //   return this.imageResizeService.rotate(img.file, img.rotate);
-    // });
-    // return Promise.all(promises).then(files => {
     imageFiles.forEach((img: ImageFile) => {
       this.cloudinaryService.upload(img.file, img.rotate, `id=${img.id}`).subscribe(e => {
         if (e.type === HttpEventType.UploadProgress) {
-          console.log(e);
           this.uploadedPercent = Math.round(100 * e.loaded / e.total);
         } else if (e.type === HttpEventType.Response) {
-          console.log(e);
-          // res.body.eager[0].secure_url;
+          const uploadedImage = imageFiles.find((i: ImageFile) => i.id = e.body.context.custom.id);
+          uploadedImage.url = e.body.eager[0].secure_url;
+          console.log(uploadedImage, imageFiles, this.goodsImages);
           this.uploadedFileCount = this.uploadedFileCount + 1;
-        } else {
-          console.log('etc', e);
+          // if (this.uploadedFileCount === imageFiles.length) {
+          //   this.goodsForm.get('images').setValue(this.goodsImages.map(i => i.url));
+          // }
+          console.log(this.goodsImages);
         }
       });
     });
-    // });
   }
 
   onSubmit() {
     this.goods = { ...this.goods, ...this.goodsForm.value };
   }
 
+  faker() {
+    const f = this.goodsForm;
+    f.get('title').setValue(faker.commerce.productName());
+    f.get('public').setValue(faker.random.boolean());
+    // tslint:disable-next-line:max-line-length
+    f.get('category').setValue(faker.random.arrayElement(['appliances', 'household', 'beauty', 'home', 'women', 'man', 'fashion', 'luxury', 'kids']));
+    f.get('purchaseTime').setValue(faker.random.arrayElement(['unknown', 'week', 'month', 'threeMonth', 'year', 'longAgo']));
+    f.get('condition').setValue(faker.random.arrayElement(['unopend', 'almostNew', 'used']));
+    f.get('delivery').setValue(faker.random.arrayElement(['directly', 'courier', 'etc']));
+    f.get('contact').setValue(faker.address.streetAddress());
+  }
 }
