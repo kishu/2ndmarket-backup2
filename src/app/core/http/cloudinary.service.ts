@@ -19,23 +19,24 @@ export class CloudinaryService {
   constructor(private http: HttpClient) {
   }
 
-  upload(file: File): Observable<HttpEvent<any>> {
-    const c = environment.cloudinary;
+  upload(file: File, rotate = 0, context = ''): Observable<HttpEvent<any>> {
+    const cloudinary = environment.cloudinary;
     // https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
-    const eager = 'f_auto,q_auto,w_700,dpr_2.0,c_limit';
+    const eager = `f_auto,q_auto,w_800,a_${rotate},dpr_2.0,c_limit`;
     const eagerAsync = true;
     const timestamp = new Date().getTime();
     // Sort all the parameters in alphabetical order.
-    const signature = `eager=${eager}&folder=${c.folder}&timestamp=${timestamp}${c.apiSecret}`;
+    const signature = `context=${context}&eager=${eager}&folder=${cloudinary.folder}&timestamp=${timestamp}${cloudinary.apiSecret}`;
     const fd = new FormData();
-    fd.set('api_key', c.apiKey);
+    fd.set('api_key', cloudinary.apiKey);
     fd.set('eager-async', `${eagerAsync}`);
     fd.set('eager', eager);
     fd.set('file', file);
-    fd.set('folder', c.folder);
+    fd.set('folder', cloudinary.folder);
+    fd.set('context', context);
     fd.set('timestamp', `${timestamp}`);
     fd.set('signature', sha256(signature));
-    const request = new HttpRequest('POST', c.url, fd, this.httpRequestOptions);
+    const request = new HttpRequest('POST', cloudinary.url, fd, this.httpRequestOptions);
     return this.http.request(request);
   }
 }

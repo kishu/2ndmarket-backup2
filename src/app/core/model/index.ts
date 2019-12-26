@@ -1,4 +1,4 @@
 export * from './goods';
 export * from './group';
-export * from './imageFile';
+export * from './image';
 export * from './user';

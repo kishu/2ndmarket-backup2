@@ -208,8 +208,8 @@
           </div>
           <div>
             <span>rotate: ({{ image.rotate }})</span> |
-            <button type="button" (click)="onClickMoveImage(image, i, i - 1)">앞으로</button> |
-            <button type="button" (click)="onClickMoveImage(image, i, i + 1)">뒤로</button> |
+            <button type="button" (click)="onClickMoveImage(i, i - 1)">앞으로</button> |
+            <button type="button" (click)="onClickMoveImage(i, i + 1)">뒤로</button> |
             <button type="button" (click)="onClickRotateImage(image, 90)">회전(90)</button> |
             <button type="button" (click)="onClickRotateImage(image, -90)">회전(-90)</button> |
             <button type="button" (click)="onClickDeleteImage(i)">삭제</button>

@@ -1,29 +1,13 @@
 import { v1 as uuid } from 'uuid';
+import * as arrayMove from 'array-move';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, NewGoods } from '@app/core/model';
+// tslint:disable-next-line:max-line-length
+import { Goods, GoodsCategory, GoodsCondition, GoodsDelivery, GoodsPurchaseTime, ImageFile, ImageType, ImageUrl, NewGoods } from '@app/core/model';
 import { CloudinaryService } from '@app/core/http/cloudinary.service';
 import { ImageResizeService } from '@app/shared/services';
 import { HttpEventType } from '@angular/common/http';
-
-export enum GoodsImageType {
-  'file' = 'file',
-  'url' = 'url'
-}
-
-export interface GoodsImageFile {
-  type: GoodsImageType;
-  id: string;
-  file: File;
-  rotate: number;
-}
-
-export interface GoodsImageUrl {
-  type: GoodsImageType;
-  url: string;
-}
-
-export type GoodsImage = (GoodsImageFile | GoodsImageUrl);
+declare type GoodsImage = (ImageFile | ImageUrl);
 
 @Component({
   selector: 'app-goods-form',
@@ -53,7 +37,7 @@ export class GoodsFormComponent implements OnInit {
   get imageFileSize() {
     return this.goodsImages
       .filter(i => typeof i !== 'string' )
-      .reduce((a, c) => (a + (c as GoodsImageFile).file.size), 0);
+      .reduce((a, c) => (a + (c as ImageFile).file.size), 0);
   }
 
   constructor(
@@ -87,7 +71,7 @@ export class GoodsFormComponent implements OnInit {
       // console.log('before resize', file.size, file);
       this.imageResizeService.resize(file).then(f => {
         this.goodsImages.push({
-          type: GoodsImageType.file,
+          type: ImageType.file,
           id: uuid(),
           file: f,
           rotate: 0
@@ -97,37 +81,39 @@ export class GoodsFormComponent implements OnInit {
     }
   }
 
-  onClickRotateImage(image: GoodsImageFile, degree: number) {
+  onClickRotateImage(image: ImageFile, degree: number) {
     image.rotate = (image.rotate + degree) % 360;
   }
 
-  onClickMoveImage(image: GoodsImage | GoodsImageUrl, curr: number, to: number) {
-    array.splice(index, 0, ...elements);
+  onClickMoveImage(from: number, to: number) {
+    arrayMove(this.goodsImages, from, to);
   }
 
   onClickDeleteImage(idx: number) {
-    this.imageFileItems.splice(idx, 1);
+    this.goodsImages.splice(idx, 1);
   }
 
   upload() {
-    const promises = this.imageFileItems.map(i => {
-      return this.imageResizeService.rotate(i.file, i.rotate);
+    const imageFiles = this.goodsImages.filter(img => img.type === ImageType.file);
+    // const promises = imageFiles.map((img: ImageFile) => {
+    //   return this.imageResizeService.rotate(img.file, img.rotate);
+    // });
+    // return Promise.all(promises).then(files => {
+    imageFiles.forEach((img: ImageFile) => {
+      this.cloudinaryService.upload(img.file, img.rotate, `id=${img.id}`).subscribe(e => {
+        if (e.type === HttpEventType.UploadProgress) {
+          console.log(e);
+          this.uploadedPercent = Math.round(100 * e.loaded / e.total);
+        } else if (e.type === HttpEventType.Response) {
+          console.log(e);
+          // res.body.eager[0].secure_url;
+          this.uploadedFileCount = this.uploadedFileCount + 1;
+        } else {
+          console.log('etc', e);
+        }
+      });
     });
-    return Promise.all(promises).then(files => {
-      for (const f of files) {
-        this.cloudinaryService.upload(f).subscribe(e => {
-          if (e.type === HttpEventType.UploadProgress) {
-            this.uploadedPercent = Math.round(100 * e.loaded / e.total);
-          } else if (e.type === HttpEventType.Response) {
-            console.log(e);
-            // res.body.eager[0].secure_url;
-            this.uploadedFileCount = this.uploadedFileCount + 1;
-          } else {
-            console.log('etc', e);
-          }
-        });
-      }
-    });
+    // });
   }
 
   onSubmit() {
