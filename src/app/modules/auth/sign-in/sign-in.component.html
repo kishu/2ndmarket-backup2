@@ -9,44 +9,19 @@
     (ngSubmit)="submit()"
     #signInForm="ngForm">
     <div>
-      <label for="account">이메일 계정</label>
+      <label for="email">이메일 주소</label>
       <input
-        id="account"
-        name="account"
-        type="text"
-        #accountCtl="ngModel"
-        [(ngModel)]="account"
-        minlength="2"
+        id="email"
+        name="email"
+        type="email"
+        #emailCtl="ngModel"
+        [(ngModel)]="email"
+        minlength="5"
+        email
         required>
     </div>
-    <div *ngIf="accountCtl.invalid && (accountCtl.dirty || accountCtl.touched)">
-      <div *ngIf="accountCtl.errors.required">
-        이메일 계정을 입력하세요.
-      </div>
-      <div *ngIf="accountCtl.errors.minlength">
-        이메일 계정을 2자 이상 입력하세요.
-      </div>
-    </div>
-    <div>
-      <label for="domain">도메인</label>
-      <select
-        id="domain"
-        name="domain"
-        #domainCtl="ngModel"
-        [(ngModel)]="domain"
-        required>
-        <option value=""></option>
-        <option
-          *ngFor="let group of groups | async"
-          [value]="group.domain">
-          {{ group.domain }}
-        </option>
-      </select>
-    </div>
-    <div *ngIf="domainCtl.invalid && (domainCtl.dirty || domainCtl.touched)">
-      <div *ngIf="domainCtl.errors.required">
-        도메인을 선택하세요.
-      </div>
+    <div *ngIf="emailCtl.invalid && (emailCtl.dirty || emailCtl.touched)">
+      이메일 주소를 정확히 입력하세요.
     </div>
     <div>
       <button
@@ -60,7 +35,7 @@
 
 <ng-container *ngIf="submitted">
   <p>
-    {{ account }}@{{ domain }}으로 로그인 메일을 보냈습니다.<br/>
+    {{ email }}(으)로 로그인 메일을 보냈습니다.<br/>
     메일을 확인해 주세요.
   </p>
   <p>

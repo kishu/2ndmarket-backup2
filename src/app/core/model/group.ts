@@ -1,10 +1,16 @@
 import { firestore } from 'firebase/app';
 
+export enum GroupType {
+  corp = 'corp',
+  school = 'school',
+  apt = 'apt'
+}
+
 export interface Group {
   id: string;
-  domain: string;
+  domain?: string;
   name: string;
-  type: 'corp' | 'school' | 'apt';
+  type: GroupType;
 }
 
 // export type NewGroup = Omit<Group 'id'>;
